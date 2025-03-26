@@ -252,13 +252,13 @@ void setup() {
 
   // Init DS1307
   clockInit();
-  // if (Serial) { // Only sync in connected to a computer
-  //   syncDS1307();
-  // } else { // Otherwise set time to beginning of time
-  rtc.adjust(DateTime(2000,1,1));
-  // }
+  if (Serial) { // Only sync if connected to a computer
+    syncDS1307();
+  } else { // Otherwise set time to beginning of time
+    rtc.adjust(DateTime(2000,1,1));
+  }
   now = rtc.now();
-  lastPicTime = now - TimeSpan(0,0,15,0);
+  lastPicTime = now - TimeSpan(0,0,1,0);
 
   //Reset the CPLD -- not sure what this means
   myCAM.write_reg(0x07, 0x80);
@@ -293,11 +293,11 @@ void loop() {
   // Get time since last picutre
   TimeSpan delta = now - lastPicTime;
   // Take another picture if it's been more than 15 minutes
-  if (delta.totalseconds() >= TimeSpan(0,0,15,0).totalseconds()) {
-      // takePicture();
+  if (delta.totalseconds() >= TimeSpan(0,0,1,0).totalseconds()) {
+      takePicture();
       // Note now as the most recent time a pic was taken
       lastPicTime = rtc.now();
-      delay(5*1000); // wait 5 seconds
+      delay(1000); // wait 5 seconds
   }
   delay(1000);
 }
