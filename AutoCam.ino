@@ -287,33 +287,17 @@ void setup() {
 }
 
 
-void smartTDelay() {
+void loop() {
   // Update the time tracked through this program
   now = rtc.now();
   // Get time since last picutre
   TimeSpan delta = now - lastPicTime;
   // Take another picture if it's been more than 15 minutes
   if (delta.totalseconds() >= TimeSpan(0,0,15,0).totalseconds()) {
-      takePicture();
+      // takePicture();
       // Note now as the most recent time a pic was taken
       lastPicTime = rtc.now();
       delay(5*1000); // wait 5 seconds
   }
   delay(1000);
-}
-
-
-// DELETE ME
-void wait(int minutes) {
-  for (int i = 0; i < minutes; i++) {
-    for (int j = 0; j < 60; j++) {
-      delay(1000);
-    }
-  }
-}
-
-
-void loop() {
-  takePicture();
-  wait(1);
 }
