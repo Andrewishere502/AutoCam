@@ -237,6 +237,22 @@ void dateTime(uint16_t* date, uint16_t* time) {
   *time = FAT_TIME(now.hour(), now.minute(), now.second());
 }
 
+// Print out the DS1307 date and time
+void printTime() {
+  Serial.print("Current date and time: ");
+  Serial.print(now.year());
+  Serial.print('/');
+  Serial.print(now.month());
+  Serial.print('/');
+  Serial.print(now.day());
+  Serial.print(' ');
+  Serial.print(now.hour());
+  Serial.print(':');
+  Serial.print(now.minute());
+  Serial.print(':');
+  Serial.println(now.second());
+}
+
 void setup() {
   Wire.begin();
 
@@ -254,10 +270,10 @@ void setup() {
   clockInit();
   if (Serial) { // Only sync if connected to a computer
     syncDS1307();
-  } else { // Otherwise set time to beginning of time
-    rtc.adjust(DateTime(2000,1,1));
   }
+
   now = rtc.now();
+  printTime();
   lastPicTime = now - TimeSpan(0,0,1,0);
 
   //Reset the CPLD -- not sure what this means
@@ -292,7 +308,7 @@ void loop() {
   now = rtc.now();
   // Get time since last picutre
   TimeSpan delta = now - lastPicTime;
-  // Take another picture if it's been more than 15 minutes
+  // Take another picture if it's been more than 1 minutes
   if (delta.totalseconds() >= TimeSpan(0,0,1,0).totalseconds()) {
       takePicture();
       // Note now as the most recent time a pic was taken
