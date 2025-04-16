@@ -75,7 +75,7 @@ meta_df = pd.read_csv(meta_file, index_col='ID')
 
 # Create a queue and add 10 images that need labeling to it
 label_queue: Deque[Tuple[int, pathlib.Path]] = deque()
-add_to_label_queue(label_queue, meta_df, 100)
+add_to_label_queue(label_queue, meta_df)
 
 # Continue labeling while the queue is not empty
 while len(label_queue) > 0:
@@ -106,6 +106,10 @@ while len(label_queue) > 0:
         update_shrimp_count(meta_df, img_index, len(shrimp_pts))
         # Update the csv
         save_df_csv(meta_df, meta_file)
+        # Clear fig and ax to save memory
+        plt.clf()
+        plt.cla()
+        plt.close()
         # Exit counting loop
         counting = False
 
