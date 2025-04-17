@@ -6,6 +6,7 @@ image's origin folder (i.e. which "run" it came from, e.g. AutoCamRun3) and orig
 
 import pandas as pd
 
+import argparse
 import pathlib
 from collections import OrderedDict
 
@@ -45,26 +46,56 @@ COLUMNS = [
     'Filter',       # If the filter is visible in the image (0/1)
 ]
 
-# Directory to consolidate images into
-data_folder = pathlib.Path('Data')
+
+# Parse command line arguments
+parser = argparse.ArgumentParser()
+
+# Add positional (mandatory) arguments
+parser.add_argument('origin_dirs',
+                    nargs='+',  # Require one or more values
+                    type=pathlib.Path,
+                    help='List of origin directories separated by a space'
+                    )
+parser.add_argument('new_dir',
+                    type=pathlib.Path,
+                    help='Output directory in which to consolidate images'
+                    )
+
+# Add optional arguments
+parser.add_argument('-t', '--tank_id',
+                    default=False,  # If not specified, will be False
+                    help='Tank ID to use for all images'
+                    )
+parser.add_argument('-f', '--filter',
+                    action='store_true',  # If not specified, will be False, otherwise true
+                    help='If the filter can be seen in any of the images being consolidated'
+                    )
+
+# Parse the command line arguments
+args = parser.parse_args()
+
+
 # Create the data folder if it doesn't exist
-if not data_folder.exists():
-    data_folder.mkdir()
+if not args.new_dir.exists():
+    args.new_dir.mkdir()
+
 
 # Construct path to metadata CSV file
-meta_file = data_folder / 'metadata.csv'
+meta_file = args.new_dir / 'metadata.csv'
 # Create the meta file with an appropriate header if it doesn't already
 # exist.
 if not meta_file.exists():
-    print(f'metadata.csv file not found, creating it.')
+    print(f'Creating metadata.csv file.')
     with open(meta_file, 'w') as file:  # Create metadata file
         header = INDEX_COL + ',' + ','.join(COLUMNS)
         file.write(header + '\n')  # Add in the header
+
 
 # Load the data, using the first column (column index 0) as the index
 # column of the dataset
 meta_df = pd.read_csv(meta_file, index_col=INDEX_COL)
 header = meta_df.columns  # Get the columns in the DataFrame
+
 
 # Verify all required columns exist within the dataframe.
 # If a column does not exist, add it and save the dataframe.
@@ -74,34 +105,45 @@ for column in COLUMNS:
         save_df_csv(meta_df, meta_file)
         print(f'Added new column {column} to {meta_file.name}')
 
-# Take each image from its AutoCamRun folder, record its metadata in
-# metadata.csv, and move it to the data folder
-for origin_dir in pathlib.Path('./').iterdir():
-    if origin_dir.is_dir() and origin_dir.match(r'AutoCamRun?'):  # ? is the wildcard for 1 character
-        # Make a copy of header as an ordered dictionary to preserve
-        # order of column names.
-        row = OrderedDict([(h, None) for h in header])
 
-        row['OriginDir'] = origin_dir
+# Take each image from its directory, record its metadata in
+# metadata.csv, and move it to the data directory
+for origin_dir in args.origin_dirs:
+    if not origin_dir.exists():
+        print(f'Skipping {origin_dir}: Unable to locate directory')
+        continue
 
-        for img_orgin_name in origin_dir.iterdir():
-            row['OriginName'] = img_orgin_name.name  # Exclude OriginDir from name
+    if not origin_dir.is_dir():
+        print(f'Skipping {origin_dir}: Not a directory')
+        continue
 
-            row['NewDir'] = data_folder
+    # Make a copy of header as an ordered dictionary to preserve
+    # order of column names.
+    row = OrderedDict([(h, None) for h in header])
 
-            # Do not give images #0: VSCode won't open 00000000.JPG
-            im_num = len(meta_df) + 1
-            img_new_name = f'{im_num:08d}' + img_orgin_name.suffix
-            row['NewName'] = img_new_name
+    # Set values that will be the same for all rows in this directory
+    row['OriginDir'] = origin_dir
+    row['NewDir'] = args.new_dir
+    if args.tank_id:  # Set tank ID, if specified
+        row['TankID'] = args.tank_id
 
-            # Move the image to the consolidation directory
-            img_orgin_name.rename(data_folder / img_new_name)
+    for img_orgin_name in origin_dir.iterdir():
+        # Include only the file name, not its path
+        row['OriginName'] = img_orgin_name.name
 
-            # Add a row for this image into the meta DataFrame
-            meta_df.loc[len(meta_df)] = row.values()
+        # Do not give images #0: VSCode won't open 00000000.JPG
+        im_num = len(meta_df) + 1
+        img_new_name = pathlib.Path(f'{im_num:08d}' + img_orgin_name.suffix)
+        row['NewName'] = img_new_name
 
-            # Save the meta data DataFrame as a CSV, overwriting the
-            # old CSV.
-            # Yes this is inefficient, but it ensures every image has
-            # its meta data saved in the event of an error.
-            save_df_csv(meta_df, meta_file)
+        # Move the image to the consolidation directory
+        img_orgin_name.rename(args.new_dir / img_new_name)
+
+        # Add the row for this image into the meta DataFrame
+        meta_df.loc[len(meta_df)] = row.values()
+
+        # Save the meta data DataFrame as a CSV, overwriting the
+        # old CSV.
+        # Yes this is inefficient, but it ensures every image has
+        # its meta data saved in the event of an error.
+        save_df_csv(meta_df, meta_file)
