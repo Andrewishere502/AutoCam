@@ -2,13 +2,13 @@
 from AutoCam.
 '''
 
-import matplotlib.pyplot as plt
-import pandas as pd
-import numpy as np
-
+import argparse
 from collections import deque
 from typing import Deque, Any, Tuple
 import pathlib
+
+import matplotlib.pyplot as plt
+import pandas as pd
 
 
 def save_df_csv(df: pd.DataFrame, path: pathlib.Path) -> None:
@@ -70,12 +70,31 @@ def update_shrimp_count(meta_df: pd.DataFrame, index: Any, shrimp_count: int) ->
     return
 
 
-meta_file = pathlib.Path('Data', 'metadata.csv')
+# Parse command line arguments
+parser = argparse.ArgumentParser()
+
+# Add positional (mandatory) arguments
+parser.add_argument('data_dir',
+                    type=pathlib.Path,
+                    help='List of origin directories separated by a space'
+                    )
+
+# Add optional arguments
+parser.add_argument('-n', '--fetch_n',
+                    type=int,
+                    help='Number of images to load into labeling queue'
+                    )
+
+# Parse the command line arguments
+args = parser.parse_args()
+
+
+meta_file = args.data_dir / 'metadata.csv'
 meta_df = pd.read_csv(meta_file, index_col='ID')
 
 # Create a queue and add 10 images that need labeling to it
 label_queue: Deque[Tuple[int, pathlib.Path]] = deque()
-add_to_label_queue(label_queue, meta_df)
+add_to_label_queue(label_queue, meta_df, fetch_n=args.fetch_n)
 
 # Continue labeling while the queue is not empty
 while len(label_queue) > 0:
