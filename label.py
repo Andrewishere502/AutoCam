@@ -55,18 +55,23 @@ def add_to_label_queue(label_queue: Deque[Tuple[int, pathlib.Path]], df: pd.Data
     return
 
 
-def update_shrimp_count(meta_df: pd.DataFrame, index: Any, shrimp_count: int) -> None:
-    '''Add the number of shrimp counted to the dataframe. Does not
-    modify any files that may be associated with the dataframe! Only
-    modifies the dataframe itself.
+def update_column(meta_df: pd.DataFrame, index: Any, column: str, value: str) -> None:
+    '''Add some value to a specific row and column in the dataframe.
+    Modifies the dataframe in place.
     
     Arguments:
     meta_df -- dataframe to update
     index -- index in dataframe to update
-    shrimp_count -- number of shrimp
+    column -- column to update the value for
+    value -- the value used to update the given
+             column for this index
     '''
+    # Raise error if trying to update non-existant
+    if column not in meta_df.columns:
+        raise ValueError(f'No column \'{column}\' in dataframe.')
+
     # Set the number of shrimp for the image at the specified index
-    meta_df.at[index, 'NShrimp'] = shrimp_count
+    meta_df.at[index, column] = value
     return
 
 
@@ -123,13 +128,23 @@ while len(label_queue) > 0:
     while counting:
         # Get points from the user until manually terminated
         shrimp_pts = fig.ginput(-1, timeout=-1)
-        # Update the dataframe, but not the csv
-        update_shrimp_count(meta_df, img_index, len(shrimp_pts))
+
+        # Update shrimp count in dataframe
+        update_column(meta_df, img_index, 'NShrimp', len(shrimp_pts))
+
+        # Update shrimp positions in dataframe
+        shrimp_pts_str = ''
+        for pt in shrimp_pts:
+            shrimp_pts_str += '({0:.0f} {1:.0f})'.format(*pt)
+        update_column(meta_df, img_index, 'ShrimpPos', shrimp_pts_str)
+
         # Update the csv
         save_df_csv(meta_df, meta_file)
+
         # Clear fig and ax to save memory
-        plt.clf()
+        plt.clf()  # clf() and cla() may be redundant with close()
         plt.cla()
         plt.close()
+
         # Exit counting loop
         counting = False
