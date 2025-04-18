@@ -88,11 +88,12 @@ parser.add_argument('-n', '--fetch_n',
 # Parse the command line arguments
 args = parser.parse_args()
 
-
 meta_file = args.data_dir / 'metadata.csv'
 meta_df = pd.read_csv(meta_file, index_col='ID')
 
-# Create a queue and add 10 images that need labeling to it
+# Create a queue and add some images to it. If fetch_n was specified
+# load that number of images only. Otherwise, load in all unlabeled
+# images.
 label_queue: Deque[Tuple[int, pathlib.Path]] = deque()
 add_to_label_queue(label_queue, meta_df, fetch_n=args.fetch_n)
 
@@ -104,15 +105,16 @@ while len(label_queue) > 0:
 
     # Display image
     fig, ax = plt.subplots()
+    # Configure figure title and the x/y axis
+    ax.set_title(img_path)
     ax.set_xticks([])
     ax.set_yticks([])
-    ax.imshow(img_array)
-    ax.set_title(img_path)
     # Provide instructions on controls
     ax.set_xlabel('Click on each individual shrimp once.' \
                   '\nRight click to delete last point.' \
                   '\nPress enter when done.'
                  )
+    ax.imshow(img_array)
     fig.tight_layout()  # Reduce margin around image
     plt.draw()  # Doesn't clear the fig or ax
 
@@ -131,20 +133,3 @@ while len(label_queue) > 0:
         plt.close()
         # Exit counting loop
         counting = False
-
-        #NOTE: This doesn't work because the user can only press ENTER
-        # as input to ginput in this case. Rework this to use MouseButton
-        # and a function attached to the canvas.
-
-        # Make user confirm the number of shrimp to move on
-        # ax.set_xlabel(f'You counted {len(shrimp_pts)} shrimp, is that correct?' \
-        #               '\nPress enter to confirm.'
-        #              )
-        # if len(fig.ginput(0, timeout=-1)) == 0:
-        #     # Finish counting when confirmed
-        #     counting = False
-        #     print(f'I should save NShrimp={len(shrimp_pts)}')
-        # else:
-        #     # allow user to count again
-        #     continue
-
