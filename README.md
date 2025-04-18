@@ -14,7 +14,6 @@ This is designed for the ELEGOO UNO R3 and the ELEGOO Data Logging Shield.
 | Arducam Mini OV2640 2MP Camera Module | $25.99 | 1 | $25.99 | [Link](https://www.amazon.com/Arducam-Module-Megapixels-Arduino-Mega2560/dp/B012UXNDOY/ref=asc_df_B012UXNDOY?mcid=cdb40dc8bc563317acd1ec232c21ba5e&hvocijid=18074124772737744877-B012UXNDOY-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=18074124772737744877&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9020398&hvtargid=pla-2281435178338&psc=1) |
 | CR1220 Coin Battery | -- | 1 | $6.99 | [Link](https://www.amazon.ca/CR1220-DL1220-Lithium-Coin-Count/dp/B0971F11PZ?gQT=1) |
 | Dupont Jumper Wires | -- | -- | $13.99 | [Link](https://www.amazon.ca/Breadboard-Compatible-Arduino-Projects-Raspberry/dp/B0BTT57ZV5/ref=sr_1_1_sspa?crid=1D2L88XQD6RH4&dib=eyJ2IjoiMSJ9.dK4CPhjsRBvg0pGKJYjTFu_H59vwW1dzq7NeEKoMMNJesII6KG9wcBdxucyKFs-9gD6ysQaVZarLtP_U42VD9g5BCbw0382X1lUfUhtbG-5jrBVXLJ2zymn1bl-tSGqOg2Cw0EPmH5QKWF6M4i0Bi5gMONccDUOn7yn06I52UV5R5WCQJu-j3TRvXZKnMk8AWtmRD7G8hc0IxovPsA0B7Fv0th6tokdgB3uElNvqbTPKuz_bGHxRVmSrLPkBICa7B3a2DKPrKD0zocv_oAXQwNiMPiyiGsDzIwmu_LZuyq8.TAh0xV3DaDQp0vKu6K5E98mOhNDzbYl8FjSWxE91Q_s&dib_tag=se&keywords=dupont%2Bwires&qid=1744864954&s=electronics&sprefix=dupont%2Bwires%2Celectronics%2C92&sr=1-1-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&th=1) |
-| __ | __ | __ | __ | [Link]() |
 
 
 ## AutoCam setup
