@@ -58,9 +58,11 @@ COLUMNS = [
     'NewName',      # New name for the image after processing
     'NShrimp',      # Number of shrimp in the image
     'TankID',       # Which tank the image came from (1, 2, 3)
-    'Date',         # Date (approximate) that the image was captured (mm/dd/yyyy)
+    # 'Date',         # Date (approximate) that the image was captured (mm/dd/yyyy)
     'Bubbles',      # If there are bubbles in the image or not (0/1)
     'Filter',       # If the filter is visible in the image (0/1)
+    'ShrimpPos',    # Positions of shrimp within the image
+    'Glare',    # If there is any glare on the water's surface
 ]
 
 
