@@ -4,7 +4,7 @@ from AutoCam.
 
 import argparse
 from collections import deque
-from typing import Deque, Any, Tuple
+from typing import Deque, Any, Tuple, Union
 import pathlib
 
 import matplotlib.pyplot as plt
@@ -22,7 +22,7 @@ def save_df_csv(df: pd.DataFrame, path: pathlib.Path) -> None:
     return
 
 
-def add_to_label_queue(label_queue: Deque[Tuple[int, pathlib.Path]], df: pd.DataFrame, fetch_n: int=None) -> None:
+def add_to_label_queue(label_queue: Deque[Tuple[int, pathlib.Path]], df: pd.DataFrame, fetch_n: Union[int, None]=None) -> None:
     '''Append a specified number of images (i.e. path to the images)
     that need labeling to the labeling queue.
     
@@ -55,23 +55,24 @@ def add_to_label_queue(label_queue: Deque[Tuple[int, pathlib.Path]], df: pd.Data
     return
 
 
-def update_column(meta_df: pd.DataFrame, index: Any, column: str, value: str) -> None:
+<<<<<<< HEAD
+def update_column(meta_df: pd.DataFrame, index: Any, column: str, value: Any) -> None:
     '''Add some value to a specific row and column in the dataframe.
     Modifies the dataframe in place.
+=======
+def update_shrimp_count(meta_df: pd.DataFrame, index: Any, shrimp_count: int) -> None:
+    '''Add the number of shrimp counted to the dataframe. Does not
+    modify any files that may be associated with the dataframe! Only
+    modifies the dataframe itself.
+>>>>>>> parent of 251ae7d (Replace update_shrimp_count() with generic function to modify any column. Add functionality to record shrimp locations.)
     
     Arguments:
     meta_df -- dataframe to update
     index -- index in dataframe to update
-    column -- column to update the value for
-    value -- the value used to update the given
-             column for this index
+    shrimp_count -- number of shrimp
     '''
-    # Raise error if trying to update non-existant
-    if column not in meta_df.columns:
-        raise ValueError(f'No column \'{column}\' in dataframe.')
-
     # Set the number of shrimp for the image at the specified index
-    meta_df.at[index, column] = value
+    meta_df.at[index, 'NShrimp'] = shrimp_count
     return
 
 
@@ -111,7 +112,7 @@ while len(label_queue) > 0:
     # Display image
     fig, ax = plt.subplots()
     # Configure figure title and the x/y axis
-    ax.set_title(img_path)
+    ax.set_title(str(img_path))
     ax.set_xticks([])
     ax.set_yticks([])
     # Provide instructions on controls
@@ -128,23 +129,13 @@ while len(label_queue) > 0:
     while counting:
         # Get points from the user until manually terminated
         shrimp_pts = fig.ginput(-1, timeout=-1)
-
-        # Update shrimp count in dataframe
-        update_column(meta_df, img_index, 'NShrimp', len(shrimp_pts))
-
-        # Update shrimp positions in dataframe
-        shrimp_pts_str = ''
-        for pt in shrimp_pts:
-            shrimp_pts_str += '({0:.0f} {1:.0f})'.format(*pt)
-        update_column(meta_df, img_index, 'ShrimpPos', shrimp_pts_str)
-
+        # Update the dataframe, but not the csv
+        update_shrimp_count(meta_df, img_index, len(shrimp_pts))
         # Update the csv
         save_df_csv(meta_df, meta_file)
-
         # Clear fig and ax to save memory
-        plt.clf()  # clf() and cla() may be redundant with close()
+        plt.clf()
         plt.cla()
         plt.close()
-
         # Exit counting loop
         counting = False
