@@ -55,24 +55,18 @@ def add_to_label_queue(label_queue: Deque[Tuple[int, pathlib.Path]], df: pd.Data
     return
 
 
-<<<<<<< HEAD
 def update_column(meta_df: pd.DataFrame, index: Any, column: str, value: Any) -> None:
     '''Add some value to a specific row and column in the dataframe.
     Modifies the dataframe in place.
-=======
-def update_shrimp_count(meta_df: pd.DataFrame, index: Any, shrimp_count: int) -> None:
-    '''Add the number of shrimp counted to the dataframe. Does not
-    modify any files that may be associated with the dataframe! Only
-    modifies the dataframe itself.
->>>>>>> parent of 251ae7d (Replace update_shrimp_count() with generic function to modify any column. Add functionality to record shrimp locations.)
-    
+
     Arguments:
     meta_df -- dataframe to update
-    index -- index in dataframe to update
-    shrimp_count -- number of shrimp
+    index -- index in dataframe, row to update
+    column -- column in dataframe to update
+    value -- Set the value at row, column, to this
     '''
     # Set the number of shrimp for the image at the specified index
-    meta_df.at[index, 'NShrimp'] = shrimp_count
+    meta_df.at[index, column] = value
     return
 
 
@@ -130,7 +124,7 @@ while len(label_queue) > 0:
         # Get points from the user until manually terminated
         shrimp_pts = fig.ginput(-1, timeout=-1)
         # Update the dataframe, but not the csv
-        update_shrimp_count(meta_df, img_index, len(shrimp_pts))
+        update_column(meta_df, img_index, 'NShrimp', len(shrimp_pts))
         # Update the csv
         save_df_csv(meta_df, meta_file)
         # Clear fig and ax to save memory
